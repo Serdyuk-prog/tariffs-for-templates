@@ -1,5 +1,8 @@
 import sys
 
-string = str(sys.argv[1])
+# path = str(sys.argv[1])
 
-print(string.upper())
+
+f = open("../uploads/newfile.csv", "r")
+
+print(f.read())
