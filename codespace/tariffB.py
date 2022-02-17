@@ -19,6 +19,8 @@ import csv
 import argparse
 # убрал import telebot
 
+print("hello")
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 parser = argparse.ArgumentParser()

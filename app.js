@@ -3,22 +3,40 @@ const path = require("path");
 const upload = require("express-fileupload");
 const fs = require("fs");
 const AppError = require("./AppError");
-const morgan = require("morgan"); // consol loging tool
 const cp = require("child_process");
+const catchAsyc = require("./utils/catchAsync");
 
 const app = express();
-let decoder = new TextDecoder();
-const encoder = new TextEncoder();
 
-function toPython(text) {
-    const { stdout, stderr } = cp.spawnSync("python3", ["codespace/codespace.py", text]);
-    return stdout.toString();
+function runPython(path) {
+    return new Promise((resolve, reject) => {
+        cp.exec("./codespace/venv/bin/python codespace/tariffB.py " + path, (error, stdout, stderr) => {
+            if (error) {
+                return reject(error);
+            }
+            if (stderr) {
+                console.log("internal message:");
+                console.log(stderr);
+            }
+            resolve(stdout);
+        });
+    });
+}
+
+function fileDownload(path, res) {
+    return new Promise((resolve, reject) => {
+        res.download(path, "result.csv", (err) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve();
+        });
+    });
 }
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// app.use(morgan("dev")); // will log every request info
 app.use(express.urlencoded({ extended: true }));
 app.use(upload());
 
@@ -26,27 +44,32 @@ app.get("/", (req, res) => {
     res.render("index");
 });
 
-app.post("/", (req, res, next) => {
-    if (req.files) {
-        const file = req.files.file;
-        const text = decoder.decode(file.data);
-        const result = toPython(text);
-
-        fs.writeFile("./uploads/test.csv", result, (err) => {
-            if (err) {
-                return console.log(err);
-            }
-            res.download("./uploads/test.csv", "result.csv", (err) => {
+app.post(
+    "/",
+    catchAsyc(async (req, res) => {
+        if (req.files) {
+            const file = req.files.file;
+            await file.mv("./uploads/file.csv", async (err) => {
                 if (err) {
-                    return console.log(err);
+                    throw new AppError(err);
+                } else {
+                    try {
+                        console.log("start");
+                        await runPython("./uploads/file.csv");
+                        await fileDownload("./codespace/Res/ans.csv", res);
+                        fs.unlinkSync("./uploads/file.csv");
+                        fs.unlinkSync("./codespace/Res/ans.csv");
+                        console.log("end");
+                    } catch (err) {
+                        throw new AppError(err);
+                    }
                 }
-                fs.unlinkSync("./uploads/test.csv");
             });
-        });
-    } else {
-        throw new AppError("no file provided", 400);
-    }
-});
+        } else {
+            throw new AppError("no file provided", 400);
+        }
+    })
+);
 
 app.use((err, req, res, next) => {
     const { status = 500, message = "Something went wrong" } = err;
