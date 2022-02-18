@@ -3,4 +3,4 @@ node_modules
 .DS_Store
 codespace/venv/
 codespace/sentence_ru_cased_L-12_H-768_A-12_pt/
-uploads/
+
