@@ -1,0 +1,5 @@
+numpy~=1.18.0
+pandas~=0.25.3
+torch~=1.10.2
+deeppavlov~=0.17.2
+transformers~=4.16.2
