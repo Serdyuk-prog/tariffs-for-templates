@@ -1,22 +1,13 @@
+import argparse
+import os
+import re
+
+import numpy as np
+import pandas as pd
+import torch
 from deeppavlov import build_model, configs
 from deeppavlov.core.common.file import read_json
-import codecs
-import os
-from IPython.display import clear_output
-from torch.utils.data import DataLoader
-from sklearn.utils import shuffle
-import torch.optim as optim
-import torch.nn.functional as F
-import torch.nn as nn
-import torch
-from matplotlib import pyplot as plt
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.model_selection import train_test_split
-import pandas as pd
-import numpy as np
-import re
-import csv
-import argparse
+
 # убрал import telebot
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -85,3 +76,4 @@ res["TARIFF"] = pred
 name = dir_path+"/Res/ans.csv"
 res.to_csv(name, encoding='windows-1251', sep=";", index=False)
 # os.remove(src)
+
