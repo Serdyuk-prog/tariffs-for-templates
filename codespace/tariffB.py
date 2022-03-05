@@ -8,8 +8,6 @@ import torch
 from deeppavlov import build_model, configs
 from deeppavlov.core.common.file import read_json
 
-# убрал import telebot
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 parser = argparse.ArgumentParser()
@@ -73,7 +71,6 @@ pred = predict(X, model).numpy()
 res = pd.DataFrame()
 res["CONTENT"] = Y
 res["TARIFF"] = pred
-name = dir_path+"/Res/ans.csv"
+name = dir_path+"/Res/" + os.path.basename(src)
 res.to_csv(name, encoding='windows-1251', sep=";", index=False)
-# os.remove(src)
 
